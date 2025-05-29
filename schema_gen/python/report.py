@@ -2,7 +2,7 @@ from typing import Optional, List, Any, Dict, TypeVar, Callable, Type, cast
 from datetime import datetime
 import dateutil.parser
 
-from rich_text import RichText
+from .rich_text import RichText
 
 T = TypeVar("T")
 

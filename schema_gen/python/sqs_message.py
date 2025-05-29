@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Any, Optional, TypeVar, Type, cast
 
-from report_batch_action_message import ReportBatchActionMessage
-from report_update_message import ReportUpdateMessage
+from .report_batch_action_message import ReportBatchActionMessage
+from .report_update_message import ReportUpdateMessage
 
 T = TypeVar("T")
 EnumT = TypeVar("EnumT", bound=Enum)
