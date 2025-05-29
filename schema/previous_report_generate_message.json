@@ -1,0 +1,48 @@
+{
+  "$id": "previous_report_generate_message.json",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/PreviousReportGenerateMessage",
+  "definitions": {
+    "PreviousReportGenerateMessage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "user_id": {
+          "type": "string"
+        },
+        "report_id": {
+          "type": "string"
+        },
+        "previous_email_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PreviousEmailByAccount"
+          }
+        }
+      },
+      "required": [
+        "user_id",
+        "report_id",
+        "previous_email_info"
+      ],
+      "title": "PreviousReportGenerateMessage"
+    },
+    "PreviousEmailByAccount": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "account_id": {
+          "type": "string"
+        },
+        "number_of_email": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "account_id",
+        "number_of_email"
+      ],
+      "title": "PreviousEmailByAccount"
+    }
+  }
+}
