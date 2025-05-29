@@ -1,11 +1,10 @@
 from typing import Optional, List, Any, Dict, TypeVar, Callable, Type, cast
 from datetime import datetime
-from enum import Enum
 import dateutil.parser
 
+from rich_text import RichText
 
 T = TypeVar("T")
-EnumT = TypeVar("EnumT", bound=Enum)
 
 
 def from_str(x: Any) -> str:
@@ -51,14 +50,9 @@ def from_bool(x: Any) -> bool:
     return x
 
 
-def to_enum(c: Type[EnumT], x: Any) -> EnumT:
-    assert isinstance(x, c)
-    return x.value
-
-
 def from_dict(f: Callable[[Any], T], x: Any) -> Dict[str, T]:
     assert isinstance(x, dict)
-    return { k: f(v) for (k, v) in x.items() }
+    return {k: f(v) for (k, v) in x.items()}
 
 
 class MailMessageItem:
@@ -69,13 +63,15 @@ class MailMessageItem:
     message_id: str
     receive_at: datetime
     reply_message: Optional[str]
-    sender: str
+    sender: str # the sender will be in the format of "name <mail-address>", TODO: add verification
     subject: str
     summary: str
     tags: List[str]
     thread_id: str
 
-    def __init__(self, action: str, action_result: Optional[str], category: str, id: int, message_id: str, receive_at: datetime, reply_message: Optional[str], sender: str, subject: str, summary: str, tags: List[str], thread_id: str) -> None:
+    def __init__(self, action: str, action_result: Optional[str], category: str, id: int, message_id: str,
+                 receive_at: datetime, reply_message: Optional[str], sender: str, subject: str, summary: str,
+                 tags: List[str], thread_id: str) -> None:
         self.action = action
         self.action_result = action_result
         self.category = category
@@ -104,7 +100,8 @@ class MailMessageItem:
         summary = from_str(obj.get("summary"))
         tags = from_list(from_str, obj.get("tags"))
         thread_id = from_str(obj.get("thread_id"))
-        return MailMessageItem(action, action_result, category, id, message_id, receive_at, reply_message, sender, subject, summary, tags, thread_id)
+        return MailMessageItem(action, action_result, category, id, message_id, receive_at, reply_message, sender,
+                               subject, summary, tags, thread_id)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -155,7 +152,8 @@ class ReportContent:
     gmail: Optional[List[MailMessagesByAccount]]
     outlook: Optional[List[MailMessagesByAccount]]
 
-    def __init__(self, content_sources: List[str], gmail: Optional[List[MailMessagesByAccount]], outlook: Optional[List[MailMessagesByAccount]]) -> None:
+    def __init__(self, content_sources: List[str], gmail: Optional[List[MailMessagesByAccount]],
+                 outlook: Optional[List[MailMessagesByAccount]]) -> None:
         self.content_sources = content_sources
         self.gmail = gmail
         self.outlook = outlook
@@ -172,106 +170,11 @@ class ReportContent:
         result: dict = {}
         result["content_sources"] = from_list(from_str, self.content_sources)
         if self.gmail is not None:
-            result["gmail"] = from_union([lambda x: from_list(lambda x: to_class(MailMessagesByAccount, x), x), from_none], self.gmail)
+            result["gmail"] = from_union(
+                [lambda x: from_list(lambda x: to_class(MailMessagesByAccount, x), x), from_none], self.gmail)
         if self.outlook is not None:
-            result["outlook"] = from_union([lambda x: from_list(lambda x: to_class(MailMessagesByAccount, x), x), from_none], self.outlook)
-        return result
-
-
-class Annotations:
-    bold: Optional[bool]
-
-    def __init__(self, bold: Optional[bool]) -> None:
-        self.bold = bold
-
-    @staticmethod
-    def from_dict(obj: Any) -> 'Annotations':
-        assert isinstance(obj, dict)
-        bold = from_union([from_bool, from_none], obj.get("bold"))
-        return Annotations(bold)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        if self.bold is not None:
-            result["bold"] = from_union([from_bool, from_none], self.bold)
-        return result
-
-
-class Email:
-    address: str
-    name: str
-
-    def __init__(self, address: str, name: str) -> None:
-        self.address = address
-        self.name = name
-
-    @staticmethod
-    def from_dict(obj: Any) -> 'Email':
-        assert isinstance(obj, dict)
-        address = from_str(obj.get("address"))
-        name = from_str(obj.get("name"))
-        return Email(address, name)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["address"] = from_str(self.address)
-        result["name"] = from_str(self.name)
-        return result
-
-
-class Text:
-    content: str
-
-    def __init__(self, content: str) -> None:
-        self.content = content
-
-    @staticmethod
-    def from_dict(obj: Any) -> 'Text':
-        assert isinstance(obj, dict)
-        content = from_str(obj.get("content"))
-        return Text(content)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["content"] = from_str(self.content)
-        return result
-
-
-class TypeEnum(Enum):
-    EMAIL = "email"
-    TEXT = "text"
-
-
-class RichText:
-    annotations: Optional[Annotations]
-    email: Optional[Email]
-    text: Optional[Text]
-    type: TypeEnum
-
-    def __init__(self, annotations: Optional[Annotations], email: Optional[Email], text: Optional[Text], type: TypeEnum) -> None:
-        self.annotations = annotations
-        self.email = email
-        self.text = text
-        self.type = type
-
-    @staticmethod
-    def from_dict(obj: Any) -> 'RichText':
-        assert isinstance(obj, dict)
-        annotations = from_union([Annotations.from_dict, from_none], obj.get("annotations"))
-        email = from_union([Email.from_dict, from_none], obj.get("email"))
-        text = from_union([Text.from_dict, from_none], obj.get("text"))
-        type = TypeEnum(obj.get("type"))
-        return RichText(annotations, email, text, type)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        if self.annotations is not None:
-            result["annotations"] = from_union([lambda x: to_class(Annotations, x), from_none], self.annotations)
-        if self.email is not None:
-            result["email"] = from_union([lambda x: to_class(Email, x), from_none], self.email)
-        if self.text is not None:
-            result["text"] = from_union([lambda x: to_class(Text, x), from_none], self.text)
-        result["type"] = to_enum(TypeEnum, self.type)
+            result["outlook"] = from_union(
+                [lambda x: from_list(lambda x: to_class(MailMessagesByAccount, x), x), from_none], self.outlook)
         return result
 
 
