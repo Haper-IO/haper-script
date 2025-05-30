@@ -13,21 +13,21 @@
         "report_id": {
           "type": "string"
         },
-        "previous_email_info": {
+        "task_info": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/PreviousEmailByAccount"
+            "$ref": "#/definitions/TaskByAccount"
           }
         }
       },
       "required": [
         "user_id",
         "report_id",
-        "previous_email_info"
+        "task_info"
       ],
       "title": "PreviousReportGenerateMessage"
     },
-    "PreviousEmailByAccount": {
+    "TaskByAccount": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -42,7 +42,7 @@
         "account_id",
         "number_of_email"
       ],
-      "title": "PreviousEmailByAccount"
+      "title": "TaskByAccount"
     }
   }
 }

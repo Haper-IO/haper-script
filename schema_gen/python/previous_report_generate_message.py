@@ -29,7 +29,7 @@ def to_class(c: Type[T], x: Any) -> dict:
     return cast(Any, x).to_dict()
 
 
-class PreviousEmailByAccount:
+class TaskByAccount:
     account_id: str
     number_of_email: float
 
@@ -38,11 +38,11 @@ class PreviousEmailByAccount:
         self.number_of_email = number_of_email
 
     @staticmethod
-    def from_dict(obj: Any) -> 'PreviousEmailByAccount':
+    def from_dict(obj: Any) -> 'TaskByAccount':
         assert isinstance(obj, dict)
         account_id = from_str(obj.get("account_id"))
         number_of_email = from_float(obj.get("number_of_email"))
-        return PreviousEmailByAccount(account_id, number_of_email)
+        return TaskByAccount(account_id, number_of_email)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -52,27 +52,27 @@ class PreviousEmailByAccount:
 
 
 class PreviousReportGenerateMessage:
-    previous_email_info: List[PreviousEmailByAccount]
     report_id: str
+    task_info: List[TaskByAccount]
     user_id: str
 
-    def __init__(self, previous_email_info: List[PreviousEmailByAccount], report_id: str, user_id: str) -> None:
-        self.previous_email_info = previous_email_info
+    def __init__(self, report_id: str, task_info: List[TaskByAccount], user_id: str) -> None:
         self.report_id = report_id
+        self.task_info = task_info
         self.user_id = user_id
 
     @staticmethod
     def from_dict(obj: Any) -> 'PreviousReportGenerateMessage':
         assert isinstance(obj, dict)
-        previous_email_info = from_list(PreviousEmailByAccount.from_dict, obj.get("previous_email_info"))
         report_id = from_str(obj.get("report_id"))
+        task_info = from_list(TaskByAccount.from_dict, obj.get("task_info"))
         user_id = from_str(obj.get("user_id"))
-        return PreviousReportGenerateMessage(previous_email_info, report_id, user_id)
+        return PreviousReportGenerateMessage(report_id, task_info, user_id)
 
     def to_dict(self) -> dict:
         result: dict = {}
-        result["previous_email_info"] = from_list(lambda x: to_class(PreviousEmailByAccount, x), self.previous_email_info)
         result["report_id"] = from_str(self.report_id)
+        result["task_info"] = from_list(lambda x: to_class(TaskByAccount, x), self.task_info)
         result["user_id"] = from_str(self.user_id)
         return result
 
