@@ -14,7 +14,7 @@ $$ LANGUAGE plpgsql;
 COMMENT ON FUNCTION update_time IS 'Trigger function to automatically update the updated_at column with the current timestamp when a row is modified';
 
 CREATE TABLE IF NOT EXISTS users (
-    user_id UUID NOT NULL,
+    id UUID NOT NULL,
     name VARCHAR(32),
     image TEXT,
     email VARCHAR(256) NOT NULL UNIQUE,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(user_id)
+    PRIMARY KEY(id)
 );
 
 CREATE TRIGGER update_time_of_users
@@ -52,7 +52,7 @@ COMMENT ON COLUMN users.deleted_at IS 'UTC timestamp when the user was deleted';
 COMMENT ON COLUMN users.updated_at IS 'UTC timestamp of when the user was updated';
 
 CREATE TABLE IF NOT EXISTS accounts (
-    account_id UUID NOT NULL,
+    id UUID NOT NULL,
     user_id UUID NOT NULL,
     provider VARCHAR(16) NOT NULL,
     provider_account_id TEXT NOT NULL,
@@ -62,9 +62,9 @@ CREATE TABLE IF NOT EXISTS accounts (
     expires_at BIGINT,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (account_id),
+    PRIMARY KEY (id),
     CONSTRAINT unique_provider_account UNIQUE (provider, provider_account_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TRIGGER update_time_of_accounts
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS user_settings (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(user_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TRIGGER update_time_of_user_settings
@@ -119,8 +119,8 @@ CREATE TABLE IF NOT EXISTS message_tracking_records (
     extra_info JSONB,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (account_id) REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE CASCADE,
     PRIMARY KEY (user_id, account_id)
 );
 
