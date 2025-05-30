@@ -8,13 +8,16 @@
       "properties": {
         "action_type": {
           "type": "string",
-          "enum": ["report_update", "report_batch_action"]
+          "enum": ["report_update", "report_batch_action", "previous_report_generate"]
         },
         "report_update_message": {
           "$ref": "./report_update_message.json#/definitions/ReportUpdateMessage"
         },
         "report_batch_action_message": {
           "$ref": "./report_batch_action_message.json#/definitions/ReportBatchActionMessage"
+        },
+        "previous_report_generate_message": {
+          "$ref": "./previous_report_generate_message.json#/definitions/PreviousReportGenerateMessage"
         }
       },
       "required": [

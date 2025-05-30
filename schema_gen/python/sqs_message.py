@@ -1,8 +1,9 @@
 from enum import Enum
-from typing import Any, Optional, TypeVar, Type, cast
+from typing import Any, List, Optional, TypeVar, Callable, Type, cast
 
 from .report_batch_action_message import ReportBatchActionMessage
 from .report_update_message import ReportUpdateMessage
+from .previous_report_generate_message import PreviousReportGenerateMessage
 
 T = TypeVar("T")
 EnumT = TypeVar("EnumT", bound=Enum)
@@ -33,18 +34,23 @@ def to_enum(c: Type[EnumT], x: Any) -> EnumT:
 
 
 class ActionType(Enum):
+    PREVIOUS_REPORT_GENERATE = "previous_report_generate"
     REPORT_BATCH_ACTION = "report_batch_action"
     REPORT_UPDATE = "report_update"
 
 
 class SqsMessage:
     action_type: ActionType
+    previous_report_generate_message: Optional[PreviousReportGenerateMessage]
     report_batch_action_message: Optional[ReportBatchActionMessage]
     report_update_message: Optional[ReportUpdateMessage]
 
-    def __init__(self, action_type: ActionType, report_batch_action_message: Optional[ReportBatchActionMessage],
+    def __init__(self, action_type: ActionType,
+                 previous_report_generate_message: Optional[PreviousReportGenerateMessage],
+                 report_batch_action_message: Optional[ReportBatchActionMessage],
                  report_update_message: Optional[ReportUpdateMessage]) -> None:
         self.action_type = action_type
+        self.previous_report_generate_message = previous_report_generate_message
         self.report_batch_action_message = report_batch_action_message
         self.report_update_message = report_update_message
 
@@ -52,14 +58,21 @@ class SqsMessage:
     def from_dict(obj: Any) -> 'SqsMessage':
         assert isinstance(obj, dict)
         action_type = ActionType(obj.get("action_type"))
+        previous_report_generate_message = from_union([PreviousReportGenerateMessage.from_dict, from_none],
+                                                      obj.get("previous_report_generate_message"))
         report_batch_action_message = from_union([ReportBatchActionMessage.from_dict, from_none],
                                                  obj.get("report_batch_action_message"))
         report_update_message = from_union([ReportUpdateMessage.from_dict, from_none], obj.get("report_update_message"))
-        return SqsMessage(action_type, report_batch_action_message, report_update_message)
+        return SqsMessage(action_type, previous_report_generate_message, report_batch_action_message,
+                          report_update_message)
 
     def to_dict(self) -> dict:
         result: dict = {}
         result["action_type"] = to_enum(ActionType, self.action_type)
+        if self.previous_report_generate_message is not None:
+            result["previous_report_generate_message"] = from_union(
+                [lambda x: to_class(PreviousReportGenerateMessage, x), from_none],
+                self.previous_report_generate_message)
         if self.report_batch_action_message is not None:
             result["report_batch_action_message"] = from_union(
                 [lambda x: to_class(ReportBatchActionMessage, x), from_none], self.report_batch_action_message)
