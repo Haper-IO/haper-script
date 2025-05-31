@@ -35,7 +35,7 @@
           "type": "string"
         },
         "number_of_email": {
-          "type": "number"
+          "type": "integer"
         }
       },
       "required": [

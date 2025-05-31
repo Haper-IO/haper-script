@@ -9,13 +9,8 @@ def from_str(x: Any) -> str:
     return x
 
 
-def from_float(x: Any) -> float:
-    assert isinstance(x, (float, int)) and not isinstance(x, bool)
-    return float(x)
-
-
-def to_float(x: Any) -> float:
-    assert isinstance(x, (int, float))
+def from_int(x: Any) -> int:
+    assert isinstance(x, int) and not isinstance(x, bool)
     return x
 
 
@@ -31,9 +26,9 @@ def to_class(c: Type[T], x: Any) -> dict:
 
 class TaskByAccount:
     account_id: str
-    number_of_email: float
+    number_of_email: int
 
-    def __init__(self, account_id: str, number_of_email: float) -> None:
+    def __init__(self, account_id: str, number_of_email: int) -> None:
         self.account_id = account_id
         self.number_of_email = number_of_email
 
@@ -41,13 +36,13 @@ class TaskByAccount:
     def from_dict(obj: Any) -> 'TaskByAccount':
         assert isinstance(obj, dict)
         account_id = from_str(obj.get("account_id"))
-        number_of_email = from_float(obj.get("number_of_email"))
+        number_of_email = from_int(obj.get("number_of_email"))
         return TaskByAccount(account_id, number_of_email)
 
     def to_dict(self) -> dict:
         result: dict = {}
         result["account_id"] = from_str(self.account_id)
-        result["number_of_email"] = to_float(self.number_of_email)
+        result["number_of_email"] = from_int(self.number_of_email)
         return result
 
 
